@@ -9,6 +9,8 @@ async function init() {
   const res = await fetch("https://words.dev-apis.com/word-of-the-day");
   const resObj = await res.json();
   const word = resObj.word.toUpperCase();
+  const wordParts = word.split("");
+  setLoading(false);
 
   console.log(word);
 
@@ -35,6 +37,29 @@ async function init() {
 
     //TODO do all the marking "correct" "close" and "wrong"
 
+    const guessParts = currentGuess.split("");
+    const map = makeMap(wordParts);
+    console.log(wordParts);
+
+    for (let i = 0; i < ANSWER_LENGTH; i++) {
+      //mark as correct
+      if (guessParts[i] === wordParts[i]) {
+        letters[currentRow * ANSWER_LENGTH + i].classList.add("correct");
+        map[guessParts[i]]--;
+      }
+    }
+    for (let i = 0; i < ANSWER_LENGTH; i++) {
+      if (guessParts[i] === wordParts[i]) {
+        //do nothing
+      } else if (wordParts.includes(guessParts[i]) && map[guessParts[i]] > 0) {
+        //mark as close
+        letters[currentRow * ANSWER_LENGTH + i].classList.add("close");
+        map[guessParts[i]]--;
+      } else {
+        letters[currentRow * ANSWER_LENGTH + i].classList.add("wrong");
+      }
+    }
+
     //TODO did they win or lose?
 
     currentRow++;
@@ -43,7 +68,7 @@ async function init() {
 
   function backspace() {
     currentGuess = currentGuess.substring(0, currentGuess.length - 1);
-    letters[ANSWER_LENGTH * currentRow + currentGuess.length].innerText ='';
+    letters[ANSWER_LENGTH * currentRow + currentGuess.length].innerText = "";
   }
 
   document.addEventListener("keydown", function handleKeyPress(event) {
@@ -65,8 +90,21 @@ function isLetter(letter) {
   return /^[a-zA-Z]$/.test(letter);
 }
 
-// console.log(isLetter("a")); // true
-// console.log(isLetter("abc")); // false, not a single character
-// console.log(isLetter("1")); // false, not a number
+function setLoading(isLoading) {
+  loadingDiv.classList.toggle("hidden", !isLoading);
+}
+
+function makeMap(array) {
+  const obj = {};
+  for (let i = 0; i < array.length; i++) {
+    const letter = array[i];
+    if (obj[letter]) {
+      obj[letter]++;
+    } else {
+      obj[letter] = 1;
+    }
+  }
+  return obj;
+}
 
 init();
