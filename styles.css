@@ -45,7 +45,16 @@ body {
 }
 
 .invalid {
-    animation: flash ls;
+    animation: flash 1s;
+}
+
+@keyframes flash {
+    5% {
+        border-color: crimson;
+    }
+    100% {
+        border-color: #ccc;
+    }
 }
 .loading {
     font-size: 20px;
